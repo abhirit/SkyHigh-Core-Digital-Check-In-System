@@ -34,7 +34,7 @@ public class BoardingPassController {
     public ResponseEntity<BoardingPassResponse> getBoardingPass(
             @PathVariable UUID checkInId,
             @AuthenticationPrincipal PassengerPrincipal principal) {
-        log.info("Getting boarding pass for check-in: {} by passenger: {}", checkInId, principal.getPassengerId());
+        log.info("Getting for check-in: {} by passenger: {}", checkInId, principal.getPassengerId());
         BoardingPassResponse response = boardingPassService.getBoardingPass(checkInId);
         return ResponseEntity.ok(response);
     }
