@@ -36,49 +36,6 @@ public class BoardingPassService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("ddMMMyyyy");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    @Transactional
-    public BoardingPass generateBoardingPass(CheckIn checkIn) {
-        log.info("Generating boarding pass for check-in: {}", checkIn.getId());
-
-        // Check if boarding pass already exists
-        if (boardingPassRepository.existsByCheckInId(checkIn.getId())) {
-            return boardingPassRepository.findByCheckInId(checkIn.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("BoardingPass", checkIn.getId()));
-        }
-
-        Flight flight = checkIn.getBooking().getFlight();
-        Passenger passenger = checkIn.getBooking().getPassenger();
-
-        String passengerName = (passenger.getLastName() + "/" + passenger.getFirstName()).toUpperCase();
-        LocalDateTime boardingTime = flight.getDepartureTime().minusMinutes(30);
-
-        // Generate unique barcode data
-        String barcodeData = generateBarcodeData(flight, passenger, checkIn);
-
-        // Generate QR code
-        String qrCodeData = generateQRCodeBase64(barcodeData);
-
-        BoardingPass boardingPass = BoardingPass.builder()
-                .checkIn(checkIn)
-                .passengerName(passengerName)
-                .flightNumber(flight.getFlightNumber())
-                .seatNumber(checkIn.getSeat().getSeatNumber())
-                .seatClass(checkIn.getSeat().getSeatClass().name())
-                .origin(flight.getOrigin())
-                .destination(flight.getDestination())
-                .departureTime(flight.getDepartureTime())
-                .gate(flight.getGate())
-                .boardingTime(boardingTime)
-                .barcodeData(barcodeData)
-                .qrCodeData(qrCodeData)
-                .build();
-
-        boardingPass = boardingPassRepository.save(boardingPass);
-        log.info("Boarding pass generated: {}", boardingPass.getId());
-
-        return boardingPass;
-    }
-
     @Transactional(readOnly = true)
     public BoardingPassResponse getBoardingPass(UUID checkInId) {
         BoardingPass boardingPass = boardingPassRepository.findByCheckInId(checkInId)
