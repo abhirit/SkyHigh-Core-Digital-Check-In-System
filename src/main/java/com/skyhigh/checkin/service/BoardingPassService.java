@@ -38,7 +38,7 @@ public class BoardingPassService {
 
     @Transactional
     public BoardingPass generateBoardingPass(CheckIn checkIn) {
-        log.info("Generating boarding pass for check-in: {}", checkIn.getId());
+        log.info("Generating boarding pass for check-in: {}", checkIn);
 
         // Check if boarding pass already exists
         if (boardingPassRepository.existsByCheckInId(checkIn.getId())) {
